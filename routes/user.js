@@ -4,6 +4,9 @@ const userController = require('../controllers/user');
 const jwtAuth = require('../middleware/jwtAuth');
 const router = express.Router();
 
+// GET response
+router.get('/', userController.getResponse);
+
 // GET all products
 router.get('/products', userController.getAllProducts);
 
