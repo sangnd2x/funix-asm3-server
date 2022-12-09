@@ -16,23 +16,32 @@ router.post('/add-to-cart', jwtAuth, userController.addProductToCart);
 // GET get items from user's cart
 router.get('/carts', jwtAuth, userController.getCart);
 
+// DELETE delete cart
+router.delete('/carts/delete', jwtAuth, userController.deleteCart);
+
+// PUT edit cart
+router.put('/carts/update', jwtAuth, userController.editCart);
+
 // POST order
 router.post('/email', jwtAuth, userController.postEmail);
 
 // GET user's order history
 router.get('/histories', jwtAuth, userController.getHistory);
 
-// Get user's order detailed history
+// GET user's order detailed history
 router.get('/histories/:orderId', jwtAuth, userController.getDetailedHistory);
 
-// POST create new chat room
-router.post('/chatrooms/createNewRoom', jwtAuth, userController.createNewChatRoom);
+// GET products for shop page
+router.get('/products/pagination', userController.getPagination);
 
-// GET chat room id
-router.get('/chatrooms/getById', jwtAuth, userController.getChatRoomId);
+// // POST create new chat room
+// router.post('/chatrooms/createNewRoom', jwtAuth, userController.createNewChatRoom);
 
-// PUT add message to chat room
-router.put('/chatrooms/addMessage', jwtAuth, userController.addMessage);
+// // GET chat room id
+// router.get('/chatrooms/getById', jwtAuth, userController.getChatRoomId);
+
+// // PUT add message to chat room
+// router.put('/chatrooms/addMessage', jwtAuth, userController.addMessage);
 
 
 

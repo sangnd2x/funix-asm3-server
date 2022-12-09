@@ -14,7 +14,10 @@ exports.getAllProducts = async (req, res, next) => {
       res.status(200).send(products);
     }
   } catch (err) {
-    console.log(err);
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    return next(err);
   }
 };
 
@@ -28,7 +31,10 @@ exports.getProductDetails = async (req, res, next) => {
       res.status(200).send(product);
     }
   } catch (err) {
-    console.log(err);
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    return next(err);
   }
 };
 
@@ -36,11 +42,17 @@ exports.addProductToCart = async (req, res, next) => {
   const { idUser, idProduct, count } = req.body;
   try {
     const product = await Product.findById(idProduct);
-    // const user = await User.findById(idUser);
+    if (product) {
+      product.quantity = product.quantity - count;
+      product.save();
+    }
     const reponse = await req.user.addToCart(product, count, idUser);
     res.status(200).json({ msg: 'Successfully added product to cart' });
   } catch (err) {
-    console.log(err)
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    return next(err);
   }
 };
 
@@ -53,6 +65,63 @@ exports.getCart = async (req, res, next) => {
     console.log(err);
   }
 };  
+
+exports.deleteCart = async (req, res, next) => {
+  const idProduct = req.query.idProduct;
+  const idUser = req.query.idUser;
+
+  try {
+    const user = await User.findById(idUser);
+    const product = await Product.findById(idProduct);
+    const cartProduct = user.cart.items.find(item => item.idProduct.toString() === idProduct.toString());
+    const newCartItems = user.cart.items.filter(item => item.idProduct.toString() !== idProduct.toString());
+    user.cart.items = newCartItems;
+    console.log(cartProduct)
+    const response = await user.save();
+    if (response) {
+      console.log(product.quantity, cartProduct.count)
+      let newQuantity = product.quantity + cartProduct.count;
+      product.quantity = newQuantity;
+      const updatedQuantity = await product.save();
+    }
+    res.status(200).json({ msg: 'Cart deleted' });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    return next(err);
+  }
+}
+
+exports.editCart = async (req, res, next) => {
+  const count = req.query.count;
+  const idProduct = req.query.idProduct;
+  const idUser = req.query.idUser;
+  console.log(count)
+
+  try {
+    const user = await User.findById(idUser);
+    const product = await Product.findById(idProduct);
+    const cartProduct = user.cart.items.find(item => item.idProduct.toString() === idProduct.toString());
+    let difference;
+    if (count >= cartProduct.count) {
+      difference = count - cartProduct.count;
+      product.quantity = product.quantity - difference;
+    } else {
+      difference = cartProduct.count - count;
+      product.quantity = product.quantity + difference;
+    }
+    const updateProduct = await product.save();
+    cartProduct.count = count;
+    const response = user.save();
+    res.status(200).json({ msg: 'Cart updated' });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    return next(err);
+  }
+}
 
 exports.postEmail = async (req, res, next) => {
   const { to, fullname, phone, address, idUser } = req.body;
@@ -145,18 +214,25 @@ exports.postEmail = async (req, res, next) => {
       res.status(400).json({msg: 'No order'})
     }
   } catch (err) {
-    console.log(err);
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    return next(err);
   }
 };
 
 exports.getHistory = async (req, res, next) => {
   const { idUser } = req.query;
+  console.log(idUser)
 
   try {
     const userOrders = await Order.find({ 'user.userId': idUser });
     res.status(200).send(userOrders);
   } catch (err) {
-    console.log(err);
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    return next(err);
   }
 };
 
@@ -167,53 +243,71 @@ exports.getDetailedHistory = async (req, res, next) => {
     const order = await Order.findById(orderId);
     res.status(200).send(order);
   } catch (err) {
-    console.log(err);
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    return next(err);
   }
 };
 
-exports.createNewChatRoom = async (req, res, next) => {
-  try {
-    const session = new Session({
-      user: {
-        name: req.user.fullname,
-        userId: req.user._id
-      },
-      createdDate: new Date(),
-      messages: []
-    });
-
-    const savedSession = await session.save();
-    console.log(savedSession)
-    res.status(200).json({ msg: 'New chat room created', session: savedSession });
-  } catch (err) {
-    console.log(err);
-  }
+exports.getPagination = async (req, res, next) => {
+  console.log(req.query);
 };
 
-exports.addMessage = async (req, res, next) => {
-  const { roomId, message } = req.body;
-  // console.log(roomId);
+// exports.createNewChatRoom = async (req, res, next) => {
+//   try {
+//     const session = new Session({
+//       user: {
+//         name: req.user.fullname,
+//         userId: req.user._id
+//       },
+//       createdDate: new Date(),
+//       messages: []
+//     });
 
-  try {
-    const chatRoom = await Session.findById(roomId);
-    // console.log(chatRoom)
-    const addedMessage = await chatRoom.addMessage(message);
-    io.getIo().on('send_message', data => {
-      console.log(data)
-    })
-    res.status(200).send(chatRoom);
-  } catch (err) {
-    console.log(err);    
-  }
-};
+//     const savedSession = await session.save();
+//     console.log(savedSession)
+//     res.status(200).json({ msg: 'New chat room created', session: savedSession });
+//   } catch (err) {
+//     if (!err.statusCode) {
+//       err.statusCode = 500;
+//     }
+//     return next(err);
+//   }
+// };
 
-exports.getChatRoomId = async (req, res, next) => {
-  const roomId = req.query.roomId;
-  // console.log(roomId)
-  try {
-    const chatRoom = await Session.findById(roomId);
-    res.status(200).send(chatRoom);
-  } catch (err) {
-    console.log(err);
-  }
-};
+// exports.addMessage = async (req, res, next) => {
+//   const { roomId, message } = req.body;
+//   // console.log(roomId);
+
+//   try {
+//     const chatRoom = await Session.findById(roomId);
+//     // console.log(chatRoom)
+//     const addedMessage = await chatRoom.addMessage(message);
+//     io.getIo().on('send_message', data => {
+//       console.log(data)
+//     })
+//     res.status(200).send(chatRoom);
+//   } catch (err) {
+//     if (!err.statusCode) {
+//       err.statusCode = 500;
+//     }
+//     return next(err);    
+//   }
+// };
+
+// exports.getChatRoomId = async (req, res, next) => {
+//   const roomId = req.query.roomId;
+//   // console.log(roomId)
+//   try {
+//     const chatRoom = await Session.findById(roomId);
+//     res.status(200).send(chatRoom);
+//   } catch (err) {
+//     if (!err.statusCode) {
+//       err.statusCode = 500;
+//     }
+//     return next(err);
+//   }
+// };
+
+

@@ -53,6 +53,15 @@ server.use(authRoute);
 server.use(userRoute);
 server.use('/admin', adminRoute);
 
+// Handling errors
+server.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  const data = error.data
+  res.status(status).json({ msg: message, data: data });
+})
+
 mongoose.connect(MONGO_URI)
   .then(result => {
     const app = server.listen(process.env.PORT || 5000);

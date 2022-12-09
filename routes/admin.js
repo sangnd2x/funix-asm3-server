@@ -11,24 +11,33 @@ router.post('/signup', adminController.postAdminSignUp);
 router.post('/signin', adminController.postAdminSignIn);
 
 // GET all products
-router.get('/products', adminController.adminGetProducts);
+router.get('/products', jwtAuth, adminController.adminGetProducts);
 
 // POST search product
-router.post('/search', adminController.adminSearchProduct);
+router.post('/search', jwtAuth, adminController.adminSearchProduct);
 
-// GET admin fetch all chat rooms
-router.get('/chatrooms', adminController.getAllChatRooms);
+// // GET admin fetch all chat rooms
+// router.get('/chatrooms', jwtAuth, adminController.getAllChatRooms);
 
-// GET room by id
-router.get('/chatrooms/getById', adminController.getChatRoomId);
+// // GET room by id
+// router.get('/chatrooms/getById', jwtAuth, adminController.getChatRoomId);
 
 // GET fetch clients
-router.get('/clients', adminController.fetchClients);
+router.get('/clients', jwtAuth, adminController.fetchClients);
 
 // GET fetch orders
-router.get('/orders', adminController.fetchOrders);
+router.get('/orders', jwtAuth, adminController.fetchOrders);
 
 // POST add new product
-router.post('/new-product', adminController.addNewProduct);
+router.post('/new-product', jwtAuth, adminController.addNewProduct);
+
+// GET edit product
+router.get('/edit-product/:prodId', jwtAuth, adminController.fetchEditProduct);
+
+// POST edit product
+router.post('/edit-product/:prodId', jwtAuth, adminController.postEditProduct);
+
+// POST delete product
+router.delete('/delete-product/:prodId', jwtAuth, adminController.postDeleteProduct);
 
 module.exports = router;
