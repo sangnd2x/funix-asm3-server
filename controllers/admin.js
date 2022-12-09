@@ -151,7 +151,7 @@ exports.fetchOrders = async (req, res, next) => {
 
 exports.addNewProduct = async (req, res, next) => {
   const { productName, category, price, shortDesc, longDesc, quantity } = req.body;
-  const images = req.files.map(file => sfile.path);
+  const images = req.files.map(file => file.path);
   
   try {
     const product = new Product({
