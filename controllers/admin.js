@@ -7,6 +7,14 @@ const product = require('../models/product');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const order = require('../models/order');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
+});
+
 
 exports.postAdminSignUp = async (req, res, next) => {
   const { fullname, email, password, phone, role } = req.body;
@@ -151,16 +159,23 @@ exports.fetchOrders = async (req, res, next) => {
 
 exports.addNewProduct = async (req, res, next) => {
   const { productName, category, price, shortDesc, longDesc, quantity } = req.body;
-  const images = req.files.map(file => file.path);
+  const images = req.files
+  // console.log(images);
   
   try {
+    let imgPaths = [];
+    for (let image of images) {
+      const result = await cloudinary.uploader.upload(image.path)
+      imgPaths.push(result.secure_url);
+    }
+    // console.log(imgPaths)
     const product = new Product({
       name: productName,
       category: category,
-      img1: images[0],
-      img2: images[1],
-      img3: images[2],
-      img4: images[3],
+      img1: imgPaths[0],
+      img2: imgPaths[1],
+      img3: imgPaths[2],
+      img4: imgPaths[3],
       long_desc: longDesc,
       short_desc: shortDesc,
       price: price,
@@ -239,4 +254,8 @@ exports.postDeleteProduct = async (req, res, next) => {
     }
     return next(err);
   }
+}
+
+exports.postImages = async (req, res, next) => {
+  console.log(req.body);
 }

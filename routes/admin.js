@@ -31,6 +31,9 @@ router.get('/orders', jwtAuth, adminController.fetchOrders);
 // POST add new product
 router.post('/new-product', jwtAuth, adminController.addNewProduct);
 
+// POST post iamges
+router.post('/post-images', jwtAuth, adminController.postImages);
+
 // GET edit product
 router.get('/edit-product/:prodId', jwtAuth, adminController.fetchEditProduct);
 

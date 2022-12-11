@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const multer = require('multer');
+const multer = require('multer')
 const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -36,11 +36,13 @@ const fileFilter = (req, file, cb) => {
   }
 }
 
+
 server.use(cors());
 server.use(express.json({
   type: ['application/json']
 }));
 server.use(bodyParser.urlencoded({ extended: false }));
+server.use(bodyParser.json());
 server.use(helmet());
 server.use(compression());
 server.use(morgan('combined', { stream: accessLogStream }));
