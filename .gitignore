@@ -1,5 +1,2 @@
-# Ignore everything in this directory
-.env 
+.env
 node_modules
-# Except this file
-!images

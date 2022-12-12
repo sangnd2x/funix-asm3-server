@@ -1,1 +1,1 @@
-::1 - - [12/Dec/2022:03:12:32 +0000] "POST /admin/new-product HTTP/1.1" 200 27 "http://localhost:3001/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+::1 - - [12/Dec/2022:03:18:32 +0000] "POST /admin/new-product HTTP/1.1" 200 27 "http://localhost:3001/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
